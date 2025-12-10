@@ -19,3 +19,5 @@ Waveform (fft.waveform): Instead of a straight waveform line in the middle of th
 
 # GitHub Link
 https://github.com/icecream260/A4-Personal-Media-Player-Visualizer.git
+
+For Live Link: https://icecream260.github.io/A4-Personal-Media-Player-Visualizer/
