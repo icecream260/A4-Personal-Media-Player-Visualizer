@@ -6,7 +6,7 @@ Volcano: The volcano continuously emits smoke into the air and the intensity of 
 
 Willy's Boat: The boat moves back and forth in and out of the frame. If the mouse cursor is placed in front of the boat, it stops moving until the cursor is moved away.
 
-Progression Bar/Fish Icon: When the mouse hovers over the fish, it increases in size and returns to its original size when the mouse is no longer hovering. Once the song starts playing, the fish icon becomes draggable along the bar, allowing you to move it to any point in the song.
+Progression Bar/Fish Icon: When the mouse hovers over the fish, it grows in size and returns to its original size when the mouse is no longer hovering. The fish icon also becomes draggable along the bar only when the song is playing, allowing you to move it to any point in the song.
 
 Play Button: You can press play or pause the music.
 
@@ -21,4 +21,5 @@ Waveform (fft.waveform): Instead of a straight waveform line in the middle of th
 https://github.com/icecream260/A4-Personal-Media-Player-Visualizer.git
 
 For Live Link: https://icecream260.github.io/A4-Personal-Media-Player-Visualizer/
+
 
