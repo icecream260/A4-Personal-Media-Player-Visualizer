@@ -19,6 +19,11 @@ let boatPaused = false;
 let cloud1 = {x: 60, y: 74, dir: 1, speed: 0.3};
 let cloud2 = {x: 280, y: 74, dir: -1, speed: 0.25};
 
+// Dragging variables
+let dragging = false;
+let fishX = 0;
+let targetTime = 0;
+
 function preload() {
   song = loadSound("Ginger Island.mp3");
   boatImg = loadImage("Willy's Boat.png");
@@ -57,7 +62,7 @@ function draw() {
   if (song && song.isLoaded()) {
     song.setVolume(volumeSlider.value());
   }
-  
+
   // Base Background Color //
   background(135, 206, 235);
 
@@ -102,7 +107,7 @@ function draw() {
   triangle(volcanoX - 150, 400, volcanoX - 45, 400, volcanoX - 45, 200); // Left //
   triangle(volcanoX + 45, 200, volcanoX + 45, 400, volcanoX + 150, 400);  // Right // 
 
-  // Lava reacting to bass
+  // Lava reacting to bass //
   let bass = fft.getEnergy("bass");
   let lavaHeight = map(bass, 0, 255, 10, 40);
   fill(255, 100, 0, 200);
@@ -178,7 +183,17 @@ function draw() {
   if (song.isLoaded()) {
     let duration = song.duration();
     let currentTime = song.currentTime();
-    let progress = map(currentTime, 0, duration, 0, width);
+    let progress;
+
+    if (dragging) {
+      fishX = lerp(fishX, constrain(mouseX, 0, width), 0.2);
+      targetTime = map(fishX, 0, width, 0, duration);
+      progress = map(targetTime, 0, duration, 0, width);
+    } else {
+      progress = map(currentTime, 0, duration, 0, width);
+      fishX = progress;
+      targetTime = currentTime;
+    }
 
     let barHeight = 10;
 
@@ -193,32 +208,42 @@ function draw() {
 
     imageMode(CENTER);
     let iconY = progressY - barHeight / 2;
-    let iconX = progress;
-    let d = dist(mouseX, mouseY, iconX, iconY);
-    let iconSize = d < 10 ? 25 : 15;
-    image(progressIcon, iconX, iconY, iconSize, iconSize);
+    let iconSize = dist(mouseX, mouseY, fishX, iconY) < 10 ? 25 : 15;
+    image(progressIcon, fishX, iconY, iconSize, iconSize);
   }
 }
 
-// Interactive Song Position //
-function updateSongPosition() {
-  if (song.isLoaded()) {
-    if (mouseY > progressY - 10 && mouseY < progressY && mouseX > 0 && mouseX < width) {
-      let newTime = map(mouseX, 0, width, 0, song.duration());
-      song.jump(newTime);
+// Click to jump instantly //
+function mousePressed() {
+  if (song.isLoaded() && mouseY > progressY - 10 && mouseY < progressY) {
+    dragging = true;
+
+    let duration = song.duration();
+    targetTime = map(mouseX, 0, width, 0, duration);
+    song.jump(targetTime);
+  }
+}
+
+// Dragging while playing //
+function mouseDragged() {
+  if (dragging) {
+    let duration = song.duration();
+    targetTime = map(constrain(mouseX, 0, width), 0, width, 0, duration);
+    song.jump(targetTime);
+  }
+}
+
+// Stop Dragging //
+function mouseReleased() {
+  if (dragging) {
+    dragging = false;
+    if (!song.isPlaying()) {
+      song.jump(targetTime);
     }
   }
 }
 
-function mousePressed() {
-  updateSongPosition();
-}
-
-function mouseDragged() {
-  updateSongPosition();
-}
-
-// Smoke Design and Bass-Reactive Smoke //
+// Smoke Class //
 class Smoke {
   constructor(x, y) {
     this.startY = y;
@@ -230,7 +255,6 @@ class Smoke {
 
   update() {
     let bass = fft.getEnergy("bass");
-
     this.y -= 1 + bass / 500;
     this.x += random(-0.5 - bass / 500, 0.5 + bass / 500);
     this.size += bass / 300;
@@ -259,13 +283,21 @@ class Smoke {
   }
 }
 
-// Boat Image and Movement //
+// Boat //
 function drawBoat() {
   let waterY = height - 50;
   let bob = sin(frameCount * 0.05) * 3;
 
-  let d = dist(mouseX, mouseY, boatX, waterY);
-  boatPaused = d < 30;
+  let frontZoneWidth = 30;
+  let frontZoneX;
+  if (boatDirection === 1) {
+    frontZoneX = boatX;
+  } else {
+    frontZoneX = boatX - frontZoneWidth;
+  }
+
+  boatPaused = mouseX > frontZoneX && mouseX < frontZoneX + frontZoneWidth &&
+  mouseY > waterY - 20 && mouseY < waterY + 20;
 
   if (!boatPaused) {
     boatX += boatSpeed * boatDirection;
@@ -274,7 +306,6 @@ function drawBoat() {
   }
 
   let direction = boatDirection;
-
   imageMode(CENTER);
   push();
   translate(boatX, waterY + bob);
@@ -283,11 +314,10 @@ function drawBoat() {
   pop();
 }
 
-// Cloud Waveform //
+// Cloud Waveforms//
 function drawCloud(x, y, baseRadius, waveformLength) {
   if (!fft) return;
   let waveform = fft.waveform();
-
   fill("#FAF2EF");
   stroke("#FAF2EF");
   strokeWeight(2);
