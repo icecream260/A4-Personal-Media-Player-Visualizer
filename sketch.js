@@ -207,7 +207,7 @@ function draw() {
 
 // Volume % Update //
 function updateVolumeText() {
-  volumeText.html(int(volumeSlider.value() * 100) + "%");
+  volumeText.html("🔊: " + int(volumeSlider.value() * 100) + "%");
 }
 
 // Mouse & Drag Functions //
