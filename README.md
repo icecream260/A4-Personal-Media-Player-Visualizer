@@ -1,5 +1,5 @@
 # About the Media Player
-Welcome to Ginger Island! In this media player, we have the Ginger Island theme song from the game "Stardew Valley." There are three main features from the game that have been added! The first is Willy’s boat, which moves back and forth on the water, taking us from Pelican Town to the island. The second is the Blue Discus fish, one of the island’s cutest fish, used as an icon on the progress bar while the song is playing. The third is the giant volcano, emitting smoke into the air, just like Ginger Island’s volcano.
+Welcome to Ginger Island! In this media player, we have the Ginger Island theme song from the game "Stardew Valley." There are three main features from the game that have been added! The first is Willy’s boat, which moves back and forth on the water, transporting us from Pelican Town to the island and back. The second is the Blue Discus fish, one of the island’s cutest fish, used as an icon on the progress bar while the song is playing. The third is the giant volcano, emitting smoke into the air, just like Ginger Island’s volcano.
 
 # Interactive Features
 Volcano: The volcano continuously emits smoke into the air and the intensity of the smoke changes based on the music’s bass and volume. For example, when the bass/volume is loud, the smoke becomes larger and when the bass/volume is lower, the smoke becomes smaller. Another interactive feature is with the mouse cursor. Moving the mouse through the smoke pushes it around.
@@ -21,4 +21,5 @@ Waveform (fft.waveform): Instead of a straight waveform line in the middle of th
 https://github.com/icecream260/A4-Personal-Media-Player-Visualizer.git
 
 For Live Link: https://icecream260.github.io/A4-Personal-Media-Player-Visualizer/
+
 
