@@ -1,12 +1,10 @@
 let song;
-let button;
-let volumeSlider;
 let fft;
-
 let progressY;
 let progressIcon;
 
 let smoke = [];
+let sunParticles = [];
 let boatImg;
 
 // Boat Movement //
@@ -19,10 +17,15 @@ let boatPaused = false;
 let cloud1 = {x: 60, y: 74, dir: 1, speed: 0.3};
 let cloud2 = {x: 280, y: 74, dir: -1, speed: 0.25};
 
-// Dragging variables
+// Dragging Variables //
 let dragging = false;
 let fishX = 0;
 let targetTime = 0;
+
+// Play/Pause Button & Volume Controls //
+let playBtn;
+let volumeSlider;
+let volumeText;
 
 function preload() {
   song = loadSound("Ginger Island.mp3");
@@ -31,40 +34,29 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 400);
+  let canvas = createCanvas(400, 400);
+  canvas.parent('canvasContainer');
   progressY = height;
 
-  // Play/Pause Button //
-  button = createButton("play");
-  button.position(70, 500);
-  button.mousePressed(togglePlaying);
-
-  // Volume Slider //
-  volumeSlider = createSlider(0.0, 1.0, 0.5, 0.01);
-  volumeSlider.position(130, 500);
-  volumeSlider.style('width', '200px');
-
   fft = new p5.FFT(0.3, 1024);
-}
 
-// Play/Pause Button Function //
-function togglePlaying() {
-  if (!song.isPlaying()) {
-    song.loop();
-    button.html("pause");
-  } else {
-    song.pause();
-    button.html("play");
-  }
+  playBtn = select('#playBtn');
+  volumeSlider = select('#volumeSlider');
+  volumeText = select('#volumeText');
+
+  playBtn.mousePressed(togglePlaying);
+  volumeSlider.input(updateVolumeText);
 }
 
 function draw() {
+
+  // Set volume from slider //
   if (song && song.isLoaded()) {
     song.setVolume(volumeSlider.value());
   }
 
-  // Base Background Color //
-  background(135, 206, 235);
+  // Update Volume % next to slider //
+  updateVolumeText();
 
   // Sky Gradient //
   for (let y = 0; y < height - 50; y++) {
@@ -74,27 +66,17 @@ function draw() {
     line(0, y, width, y);
   }
 
-  // Volume Display //
-  let volumeValue = volumeSlider.value();
-  let volumePercent = int(volumeValue * 100);
-  fill("black");
-  stroke("white");
-  textSize(16);
-  text("Volume: " + volumePercent + "%", 10, 30);
-
-  // Cloud Movements //
+  // Clouds //
   cloud1.x += cloud1.dir * cloud1.speed;
   cloud2.x += cloud2.dir * cloud2.speed;
 
   if (cloud1.x > width - 30 || cloud1.x < 30) cloud1.dir *= -1;
   if (cloud2.x > width - 30 || cloud2.x < 30) cloud2.dir *= -1;
 
-  // Cloud 1 //
   drawCloud(cloud1.x, cloud1.y, 25, 40);
   drawCloud(cloud1.x + 30, cloud1.y + 1, 15, 30);
   drawCloud(cloud1.x - 30, cloud1.y + 1, 15, 30);
 
-  // Cloud 2 //
   drawCloud(cloud2.x, cloud2.y, 30, 40);
   drawCloud(cloud2.x - 30, cloud2.y + 1, 20, 30);
   drawCloud(cloud2.x + 30, cloud2.y + 1, 20, 30);
@@ -104,17 +86,17 @@ function draw() {
   fill("#D29C4B");
   stroke("#D29C4B");
   rect(volcanoX - 45, 170, 90, 230);
-  triangle(volcanoX - 150, 400, volcanoX - 45, 400, volcanoX - 45, 200); // Left //
-  triangle(volcanoX + 45, 200, volcanoX + 45, 400, volcanoX + 150, 400);  // Right // 
+  triangle(volcanoX - 150, 400, volcanoX - 45, 400, volcanoX - 45, 200);
+  triangle(volcanoX + 45, 200, volcanoX + 45, 400, volcanoX + 150, 400);
 
-  // Lava reacting to bass //
+  // Lava Hole & Volume/Bass Reactiveness //
   let bass = fft.getEnergy("bass");
   let lavaHeight = map(bass, 0, 255, 10, 40);
   fill(255, 100, 0, 200);
   ellipse(volcanoX, 180, 60, lavaHeight);
 
-  // Smoke Spawn - Volume/Bass Reaction //
-  if (volumeValue > 0) {
+  // Smoke //
+  if (volumeSlider.value() > 0) {
     let amount = map(bass, 0, 255, 1, 6);
     for (let i = 0; i < amount; i++) {
       smoke.push(new Smoke(volcanoX, 170));
@@ -124,20 +106,35 @@ function draw() {
   for (let i = smoke.length - 1; i >= 0; i--) {
     smoke[i].update();
     smoke[i].show();
-    if (smoke[i].finished()) {
-      smoke.splice(i, 1);
-    }
+    if (smoke[i].finished()) smoke.splice(i, 1);
   }
 
-  // Sun Waveform //
+  // Sun Setup //
   let waveform = fft.waveform();
-  fill("orange");
-  stroke(255, 204, 0, 200);
-  strokeWeight(3);
   let sunX = width - 60;
   let sunY = 60;
   let sunRadius = 30;
 
+  // Sun Particles //
+  let energy = fft.getEnergy("treble");
+  let particleAmount = map(energy, 0, 255, 0, 3);
+  for (let i = 0; i < particleAmount; i++) {
+    let angle = random(TWO_PI);
+    let radiusOffset = random(sunRadius + 2, sunRadius + 6);
+    let x = sunX + cos(angle) * radiusOffset;
+    let y = sunY + sin(angle) * radiusOffset;
+    sunParticles.push(new SunParticle(x, y, angle));
+  }
+  for (let i = sunParticles.length - 1; i >= 0; i--) {
+    sunParticles[i].update();
+    sunParticles[i].show();
+    if (sunParticles[i].finished()) sunParticles.splice(i, 1);
+  }
+
+  // Sun Waveform //
+  fill("orange");
+  stroke(255, 204, 0, 200);
+  strokeWeight(3);
   beginShape();
   for (let i = 0; i < waveform.length; i++) {
     let angle = map(i, 0, waveform.length, 0, TWO_PI);
@@ -148,22 +145,18 @@ function draw() {
   }
   endShape(CLOSE);
 
-  // Spectrum Frequency Analyze //
+  // Spectrum Bars //
   let spectrum = fft.analyze();
   noStroke();
   let waterTop = height - 50;
-
   for (let i = 0; i < spectrum.length / 2; i++) {
     let h = map(spectrum[i] * 1.5, 0, 255, 0, 100);
     let w = width / (spectrum.length / 2);
-
-    // Green Gradient //
     let t = map(h, 0, 100, 0, 1);
-    let r = lerp(40, 120, t);   
+    let r = lerp(40, 120, t);
     let g = lerp(100, 220, t);
-    let b = lerp(20,  80,  t);
+    let b = lerp(20, 80, t);
     fill(r, g, b);
-
     rect(width / 2 - i * w, waterTop - h, w, h);
     rect(width / 2 + i * w, waterTop - h, w, h);
   }
@@ -196,7 +189,6 @@ function draw() {
     }
 
     let barHeight = 10;
-
     stroke(0);
     strokeWeight(2);
     noFill();
@@ -213,18 +205,21 @@ function draw() {
   }
 }
 
-// Click to jump instantly //
+// Volume % Update //
+function updateVolumeText() {
+  volumeText.html(int(volumeSlider.value() * 100) + "%");
+}
+
+// Mouse & Drag Functions //
 function mousePressed() {
   if (song.isLoaded() && mouseY > progressY - 10 && mouseY < progressY) {
     dragging = true;
-
     let duration = song.duration();
     targetTime = map(mouseX, 0, width, 0, duration);
     song.jump(targetTime);
   }
 }
 
-// Dragging while playing //
 function mouseDragged() {
   if (dragging) {
     let duration = song.duration();
@@ -233,13 +228,21 @@ function mouseDragged() {
   }
 }
 
-// Stop Dragging //
 function mouseReleased() {
   if (dragging) {
     dragging = false;
-    if (!song.isPlaying()) {
-      song.jump(targetTime);
-    }
+    if (!song.isPlaying()) song.jump(targetTime);
+  }
+}
+
+// Play/Pause Button //
+function togglePlaying() {
+  if (!song.isPlaying()) {
+    song.loop();
+    playBtn.html("Pause");
+  } else {
+    song.pause();
+    playBtn.html("Play");
   }
 }
 
@@ -283,6 +286,36 @@ class Smoke {
   }
 }
 
+// Sun Particle Class //
+class SunParticle {
+  constructor(x, y, angle) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.vx = cos(angle) * random(0.2, 0.5);
+    this.vy = sin(angle) * random(0.2, 0.5);
+    this.size = random(1, 3);
+    this.alpha = 255;
+  }
+
+  update() {
+    let energy = fft.getEnergy("treble");
+    this.x += this.vx * (1 + energy / 500);
+    this.y += this.vy * (1 + energy / 500);
+    this.alpha -= 2;
+  }
+
+  finished() {
+    return this.alpha <= 0;
+  }
+
+  show() {
+    noStroke();
+    fill(255, 200, 50, this.alpha);
+    ellipse(this.x, this.y, this.size);
+  }
+}
+
 // Boat //
 function drawBoat() {
   let waterY = height - 50;
@@ -290,11 +323,8 @@ function drawBoat() {
 
   let frontZoneWidth = 30;
   let frontZoneX;
-  if (boatDirection === 1) {
-    frontZoneX = boatX;
-  } else {
-    frontZoneX = boatX - frontZoneWidth;
-  }
+  if (boatDirection === 1) frontZoneX = boatX;
+  else frontZoneX = boatX - frontZoneWidth;
 
   boatPaused = mouseX > frontZoneX && mouseX < frontZoneX + frontZoneWidth &&
   mouseY > waterY - 20 && mouseY < waterY + 20;
@@ -305,16 +335,15 @@ function drawBoat() {
     if (boatX < -50) boatDirection = 1;
   }
 
-  let direction = boatDirection;
   imageMode(CENTER);
   push();
   translate(boatX, waterY + bob);
-  scale(direction, 1);
+  scale(boatDirection, 1);
   image(boatImg, 0, 0, 50, 25);
   pop();
 }
 
-// Cloud Waveforms//
+// Cloud Waveforms //
 function drawCloud(x, y, baseRadius, waveformLength) {
   if (!fft) return;
   let waveform = fft.waveform();
