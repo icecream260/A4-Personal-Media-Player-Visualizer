@@ -211,11 +211,11 @@ function updateVolumeText() {
   let emoji;
 
   if (volPercent === 0) {
-    emoji = "🔇";
+    emoji = "🔇:";
   } else if (volPercent < 60) {
-    emoji = "🔉";
+    emoji = "🔉:";
   } else {
-    emoji = "🔊";
+    emoji = "🔊:";
   }
   volumeText.html(emoji + " " + volPercent + "%");
 }
