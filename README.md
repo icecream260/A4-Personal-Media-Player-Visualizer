@@ -15,11 +15,10 @@ Volume Bar: You can adjust the volume of the song and the displayed volume perce
 # Waveform/Spectrum
 Spectrum (fft.analyze): Rather than the default single-sided frequency bars, there are two sets of bars mirrored side by side, roughly matching the shape of the volcano as the music plays. The bars are green to represent the trees on the island, emphasizing the nature theme.
 
-Waveform (fft.waveform): Instead of a straight waveform line in the middle of the frame, I turned it into a circular waveform to represent the sun in the top-right corner. I also added clouds by creating another set of waveforms shaped as ellipses that move back and forth. As the music plays, both the sun and clouds react to the amplitude of the song.
+Waveform (fft.waveform): Instead of a straight waveform line in the middle of the frame, I turned it into a circular waveform to represent the sun in the top-right corner. The sun also emits particles that react to the volume and bass of the music. In addition, the clouds are another set of waveforms shaped like ellipses that move back and forth. As the music plays, both the sun and clouds react to the amplitude of the song.
 
 # GitHub Link
 https://github.com/icecream260/A4-Personal-Media-Player-Visualizer.git
 
 For Live Link: https://icecream260.github.io/A4-Personal-Media-Player-Visualizer/
-
 
