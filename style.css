@@ -1,8 +1,40 @@
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #87CEEB;
+  font-family: cursive;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 90px;
+}
+
+#canvasContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 canvas {
   display: block;
+  border: 1px solid #000;
+}
+
+#controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#volumeSlider {
+  width: 200px;
 }
