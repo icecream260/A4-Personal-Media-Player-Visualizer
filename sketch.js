@@ -207,7 +207,17 @@ function draw() {
 
 // Volume % Update //
 function updateVolumeText() {
-  volumeText.html("🔊: " + int(volumeSlider.value() * 100) + "%");
+  let volPercent = int(volumeSlider.value() * 100);
+  let emoji;
+
+  if (volPercent === 0) {
+    emoji = "🔇";
+  } else if (volPercent < 60) {
+    emoji = "🔉";
+  } else {
+    emoji = "🔊";
+  }
+  volumeText.html(emoji + " " + volPercent + "%");
 }
 
 // Mouse & Drag Functions //
